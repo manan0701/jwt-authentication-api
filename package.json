@@ -1,0 +1,19 @@
+{
+  "name": "jwt-authentication-api",
+  "version": "1.0.0",
+  "description": "A JWT-based authentication API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/manan0701/jwt-authentication-api.git"
+  },
+  "author": "Manan Patel",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/manan0701/jwt-authentication-api/issues"
+  },
+  "homepage": "https://github.com/manan0701/jwt-authentication-api#readme"
+}
