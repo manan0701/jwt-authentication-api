@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
+import { findUserByUsername, generateJwtAccessTokenForUser } from '../jwt';
 import { UserType } from '../model/user';
-import { findUserByUsername, generateJwtAccessTokenForUser } from './utils';
 
 const login = async (req: Request, res: Response) => {
   const { username, password } = req.body;

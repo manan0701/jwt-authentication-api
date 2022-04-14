@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { User, UserType } from '../model/user';
+import { UserType, User } from './model/user';
 
 const generateJwtAccessTokenForUser = (user: UserType): string => {
   const { ACCESS_TOKEN_KEY = '', ACCESS_TOKEN_EXPIRY = '1h' } = process.env;

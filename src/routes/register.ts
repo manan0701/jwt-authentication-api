@@ -1,8 +1,8 @@
 import bcrypt from 'bcrypt';
 import 'dotenv/config';
 import { Request, Response } from 'express';
+import { findUserByUsername, generateJwtAccessTokenForUser } from '../jwt';
 import { User, UserType } from '../model/user';
-import { findUserByUsername, generateJwtAccessTokenForUser } from './utils';
 
 const register = async (req: Request, res: Response) => {
   const user = parseUserInfoFromRequest(req);
