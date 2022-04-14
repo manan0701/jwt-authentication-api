@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import 'dotenv/config';
 import { Request, Response } from 'express';
 import { User, UserType } from '../model/user';
-import { generateJwtAccessTokenForUser } from './utils';
+import { findUserByUsername, generateJwtAccessTokenForUser } from './utils';
 
 const register = async (req: Request, res: Response) => {
   const user = parseUserInfoFromRequest(req);
@@ -15,7 +15,7 @@ const register = async (req: Request, res: Response) => {
       );
   }
 
-  if (await doesUserExist(user)) {
+  if (await findUserByUsername(user.username)) {
     return res
       .status(409)
       .send('User with the given username already exist. Please login instead.');
@@ -40,10 +40,6 @@ const parseUserInfoFromRequest = (request: Request): UserType | null => {
   }
 
   return { firstName: first_name, lastName: last_name, username: username, password: password };
-};
-
-const doesUserExist = async (user: UserType): Promise<boolean> => {
-  return !!(await User.findOne({ username: user.username }));
 };
 
 const registerUser = async (user: UserType): Promise<UserType> => {

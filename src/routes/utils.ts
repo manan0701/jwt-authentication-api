@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { UserType } from '../model/user';
+import { User, UserType } from '../model/user';
 
 const generateJwtAccessTokenForUser = (user: UserType): string => {
   const { ACCESS_TOKEN_KEY = '', ACCESS_TOKEN_EXPIRY = '1h' } = process.env;
@@ -9,4 +9,8 @@ const generateJwtAccessTokenForUser = (user: UserType): string => {
   });
 };
 
-export { generateJwtAccessTokenForUser };
+const findUserByUsername = async (username: string): Promise<UserType | null> => {
+  return await User.findOne({ username: username });
+};
+
+export { generateJwtAccessTokenForUser, findUserByUsername };
