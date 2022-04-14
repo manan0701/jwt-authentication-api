@@ -15,7 +15,8 @@ const verifyAccessToken = (req: Request, res: Response, next: NextFunction) => {
         jwt.verify(accessToken, ACCESS_TOKEN_KEY);
         next();
     } catch (e) {
-        return res.status(401).send("Failed to authenticate user with the given JWT cookie.");
+        console.error(e);
+        return res.status(401).send("Failed to authenticate user using the given JWT cookie.");
     }
 };
 
