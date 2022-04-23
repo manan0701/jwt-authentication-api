@@ -1,8 +1,6 @@
-import bcrypt from 'bcrypt';
 import 'dotenv/config';
 import { Request, Response } from 'express';
-import { findUserByUsername, generateJwtAccessTokenForUser } from '../jwt';
-import { User, UserType } from '../model/user';
+import { findUserByUsername, User, UserType } from '../model/user';
 
 const register = async (req: Request, res: Response) => {
   const user = parseUserInfoFromRequest(req);
@@ -22,7 +20,11 @@ const register = async (req: Request, res: Response) => {
   }
 
   const persistentUser = await registerUser(user);
-  const accessToken = generateJwtAccessTokenForUser(persistentUser);
+  let accessToken = '';
+
+  if (persistentUser.generateJwtAccessToken) {
+    accessToken = persistentUser.generateJwtAccessToken();
+  }
 
   res.cookie('jwt', accessToken, { secure: true, httpOnly: true });
   res.status(201).send();
@@ -43,13 +45,11 @@ const parseUserInfoFromRequest = (request: Request): UserType | null => {
 };
 
 const registerUser = async (user: UserType): Promise<UserType> => {
-  const encryptedPassword = await bcrypt.hash(user.password, 10);
-
   return await User.create({
     first_name: user.firstName,
     last_name: user.lastName,
     username: user.username,
-    password: encryptedPassword,
+    password: user.password,
   });
 };
 

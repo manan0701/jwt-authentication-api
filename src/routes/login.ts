@@ -1,7 +1,6 @@
 import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
-import { findUserByUsername, generateJwtAccessTokenForUser } from '../jwt';
-import { UserType } from '../model/user';
+import { findUserByUsername, UserType } from '../model/user';
 
 const login = async (req: Request, res: Response) => {
   const { username, password } = req.body;
@@ -16,7 +15,10 @@ const login = async (req: Request, res: Response) => {
     return res.status(400).send('Incorrect login credentials provided.');
   }
 
-  const accessToken = generateJwtAccessTokenForUser(user);
+  let accessToken = '';
+  if (user.generateJwtAccessToken) {
+    accessToken = user.generateJwtAccessToken();
+  }
 
   res.cookie('jwt', accessToken, { secure: true, httpOnly: true });
   res.status(200).send();
