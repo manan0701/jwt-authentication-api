@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { Request, Response } from 'express';
 import { findUserByUsername, User, UserType } from '../model/user';
+import { persistUserRefreshToken } from '../tokenStore';
 
 const register = async (req: Request, res: Response) => {
   const user = parseUserInfoFromRequest(req);
@@ -21,10 +22,17 @@ const register = async (req: Request, res: Response) => {
 
   const persistentUser = await registerUser(user);
   let accessToken = '';
+  let refreshToken = '';
 
   if (persistentUser.generateJwtAccessToken) {
     accessToken = persistentUser.generateJwtAccessToken();
   }
+
+  if (persistentUser.generateJwtRefreshToken) {
+    refreshToken = persistentUser.generateJwtRefreshToken();
+  }
+
+  persistUserRefreshToken(user, refreshToken);
 
   res.cookie('jwt', accessToken, { secure: true, httpOnly: true });
   res.status(201).send();

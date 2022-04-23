@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { findUserByUsername, UserType } from '../model/user';
+import { persistUserRefreshToken } from '../tokenStore';
 
 const login = async (req: Request, res: Response) => {
   const { username, password } = req.body;
@@ -16,9 +17,17 @@ const login = async (req: Request, res: Response) => {
   }
 
   let accessToken = '';
+  let refreshToken = '';
+
   if (user.generateJwtAccessToken) {
     accessToken = user.generateJwtAccessToken();
   }
+
+  if (user.generateJwtRefreshToken) {
+    refreshToken = user.generateJwtRefreshToken();
+  }
+
+  persistUserRefreshToken(user, refreshToken);
 
   res.cookie('jwt', accessToken, { secure: true, httpOnly: true });
   res.status(200).send();
