@@ -12,6 +12,7 @@ type UserType = {
   username: string;
   password: string;
   generateJwtAccessToken?: () => string;
+  generateJwtRefreshToken?: () => string;
 };
 
 const UserSchema = new Schema({
@@ -28,6 +29,14 @@ UserSchema.methods = {
 
     return jwt.sign({ user_id: _id, username: username }, ACCESS_TOKEN_KEY, {
       expiresIn: ACCESS_TOKEN_EXPIRY,
+    });
+  },
+  generateJwtRefreshToken: function (): string {
+    const { REFRESH_TOKEN_KEY = '', REFRESH_TOKEN_EXPIRY = '1d' } = process.env;
+    const { _id, username } = this;
+
+    return jwt.sign({ user_id: _id, username: username }, REFRESH_TOKEN_KEY, {
+      expiresIn: REFRESH_TOKEN_EXPIRY,
     });
   },
 };
