@@ -12,4 +12,8 @@ const persistUserRefreshToken = (user: UserType, refreshToken: string) => {
   }
 };
 
-export { persistUserRefreshToken };
+const getTokenForUser = (userId: string): string => {
+  return tokens[userId];
+};
+
+export { persistUserRefreshToken, getTokenForUser };
