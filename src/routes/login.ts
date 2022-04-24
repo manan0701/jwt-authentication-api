@@ -15,8 +15,12 @@ const login = async (req: Request, res: Response) => {
   const { username, password } = parseLoginInfoFromRequest(req);
   const user: UserType | null = await findUserByUsername(username);
 
-  if (!(user && (await bcrypt.compare(password, user.password)))) {
-    return res.status(400).send('Incorrect login credentials provided.');
+  if (!user) {
+    return res.status(400).send('User with the given username does not exist.');
+  }
+
+  if (!(await bcrypt.compare(password, user.password))) {
+    return res.status(400).send('Incorrect password for the user provided.');
   }
 
   const { accessToken, refreshToken } = generateJWTTokensForUser(user);
