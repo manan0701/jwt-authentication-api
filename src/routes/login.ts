@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
+import { generateJWTTokensForUser } from '../jwt';
 import { findUserByUsername, UserType } from '../model/user';
 import { persistUserRefreshToken } from '../tokenStore';
 
@@ -16,17 +17,7 @@ const login = async (req: Request, res: Response) => {
     return res.status(400).send('Incorrect login credentials provided.');
   }
 
-  let accessToken = '';
-  let refreshToken = '';
-
-  if (user.generateJwtAccessToken) {
-    accessToken = user.generateJwtAccessToken();
-  }
-
-  if (user.generateJwtRefreshToken) {
-    refreshToken = user.generateJwtRefreshToken();
-  }
-
+  const { accessToken, refreshToken } = generateJWTTokensForUser(user);
   persistUserRefreshToken(user, refreshToken);
 
   res.cookie('jwt', accessToken, { secure: true, httpOnly: true });

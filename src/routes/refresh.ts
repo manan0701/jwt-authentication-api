@@ -15,7 +15,7 @@ const refresh = async (req: Request, res: Response) => {
   const refreshToken = getTokenForUser(userId);
 
   try {
-    verifyAccessToken(refreshToken);
+    verifyAccessToken(refreshToken, 'refreshToken');
   } catch (e) {
     if (e instanceof TokenExpiredError || !refreshToken) {
       return res.status(401).send('Refresh token is not present or expired. Please login again.');
