@@ -26,7 +26,7 @@ const refresh = async (req: Request, res: Response) => {
 
   const newAccessToken = generateAccessToken(userId, username);
   res.cookie('jwt', newAccessToken, { secure: true, httpOnly: true });
-  return res.status(200).send(newAccessToken);
+  return res.status(200).send();
 };
 
 export default refresh;
