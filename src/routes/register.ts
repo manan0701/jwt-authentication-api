@@ -1,18 +1,18 @@
 import 'dotenv/config';
 import { Request, Response } from 'express';
-import { findUserByUsername, User, UserType } from '../model/user';
+import { ValidationError } from 'joi';
+import { generateJWTTokensForUser } from '../jwt';
+import { findUserByUsername, User, RegisterSchema, UserType } from '../model/user';
 import { persistUserRefreshToken } from '../tokenStore';
 
 const register = async (req: Request, res: Response) => {
-  const user = parseUserInfoFromRequest(req);
+  const validationError = validateRequest(req);
 
-  if (!user) {
-    return res
-      .status(400)
-      .send(
-        'Sufficient information not found for user registration. Please provide valid first name, last name, unique username, and password.'
-      );
+  if (validationError) {
+    return res.status(400).send(`Failed to register the user: ${validationError.message}`);
   }
+
+  const user = parseUserInfoFromRequest(req);
 
   if (await findUserByUsername(user.username)) {
     return res
@@ -21,34 +21,26 @@ const register = async (req: Request, res: Response) => {
   }
 
   const persistentUser = await registerUser(user);
-  let accessToken = '';
-  let refreshToken = '';
-
-  if (persistentUser.generateJwtAccessToken) {
-    accessToken = persistentUser.generateJwtAccessToken();
-  }
-
-  if (persistentUser.generateJwtRefreshToken) {
-    refreshToken = persistentUser.generateJwtRefreshToken();
-  }
-
+  const { accessToken, refreshToken } = generateJWTTokensForUser(persistentUser);
   persistUserRefreshToken(user, refreshToken);
 
   res.cookie('jwt', accessToken, { secure: true, httpOnly: true });
   res.status(201).send();
 };
 
-const parseUserInfoFromRequest = (request: Request): UserType | null => {
+const validateRequest = (request: Request): ValidationError | null => {
   if (!request || !request.body) {
     return null;
   }
 
   const { first_name, last_name, username, password } = request.body;
 
-  if (!(first_name && last_name && username && password)) {
-    return null;
-  }
+  const { error } = RegisterSchema.validate({ first_name, last_name, username, password });
+  return error ? error : null;
+};
 
+const parseUserInfoFromRequest = (request: Request): UserType => {
+  const { first_name, last_name, username, password } = request.body;
   return { firstName: first_name, lastName: last_name, username: username, password: password };
 };
 
