@@ -1,6 +1,6 @@
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { model, Schema } from 'mongoose';
+import { generateAccessToken, generateRefreshToken } from '../jwt';
 
 /**
  * Type representing a user with fields to support type-safe data flow.
@@ -22,30 +22,22 @@ const UserSchema = new Schema({
   password: { type: String, required: true },
 });
 
-UserSchema.methods = {
-  generateJwtAccessToken: function (): string {
-    const { ACCESS_TOKEN_KEY = '', ACCESS_TOKEN_EXPIRY = '10m' } = process.env;
-    const { _id, username } = this;
-
-    return jwt.sign({ user_id: _id, username: username }, ACCESS_TOKEN_KEY, {
-      expiresIn: ACCESS_TOKEN_EXPIRY,
-    });
-  },
-  generateJwtRefreshToken: function (): string {
-    const { REFRESH_TOKEN_KEY = '', REFRESH_TOKEN_EXPIRY = '1d' } = process.env;
-    const { _id, username } = this;
-
-    return jwt.sign({ user_id: _id, username: username }, REFRESH_TOKEN_KEY, {
-      expiresIn: REFRESH_TOKEN_EXPIRY,
-    });
-  },
-};
-
 UserSchema.pre('save', async function (next) {
   const salt = await bcrypt.genSalt(12);
   this.password = await bcrypt.hash(this.password, salt);
   return next();
 });
+
+UserSchema.methods = {
+  generateJwtAccessToken: function (): string {
+    const { _id, username } = this;
+    return generateAccessToken(_id, username);
+  },
+  generateJwtRefreshToken: function (): string {
+    const { _id, username } = this;
+    return generateRefreshToken(_id, username);
+  },
+};
 
 const User = model('User', UserSchema);
 
